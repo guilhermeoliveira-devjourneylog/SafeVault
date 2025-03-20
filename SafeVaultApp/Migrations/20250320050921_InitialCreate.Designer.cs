@@ -11,7 +11,7 @@ using SafeVaultApp.Models;
 namespace SafeVaultApp.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250320020641_InitialCreate")]
+    [Migration("20250320050921_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -35,6 +35,17 @@ namespace SafeVaultApp.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("varchar(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasDefaultValue("User");
 
                     b.Property<string>("Username")
                         .IsRequired()

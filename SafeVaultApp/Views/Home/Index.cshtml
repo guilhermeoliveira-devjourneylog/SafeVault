@@ -1,14 +1,17 @@
 ﻿@{
-    ViewData["Title"] = "SafeVault Registration";
+    ViewData["Title"] = "Welcome to SafeVault";
 }
 
-<h2>Register a User</h2>
-<form method="post" action="/submit">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required minlength="3" maxlength="50" pattern="[a-zA-Z0-9]+" title="Only alphanumeric characters allowed">
+<h2>Welcome to SafeVault</h2>
 
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
+<p>
+    Securely manage your credentials and financial data with SafeVault.
+</p>
 
-    <button type="submit">Submit</button>
-</form>
+@if (!User.Identity.IsAuthenticated)
+{
+    <a href="/SafeVault/Registration">
+        <button>Register Now</button>
+    </a>
+}
+

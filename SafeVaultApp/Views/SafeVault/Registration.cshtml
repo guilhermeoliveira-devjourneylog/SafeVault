@@ -1,0 +1,27 @@
+﻿@using SafeVaultApp.Helpers
+@{
+    ViewData["Title"] = "SafeVault Registration";
+}
+
+<h2>Register a User</h2>
+
+@if (ViewData["Message"] != null)
+{
+    <p style="color: red;">@Html.Raw(XSSProtection.SanitizeInput(ViewData["Message"].ToString()))</p>
+}
+
+<form method="post" action="/SafeVault/submit">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required minlength="3" maxlength="50" pattern="[a-zA-Z0-9]+" title="Only alphanumeric characters allowed">
+
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required minlength="6" maxlength="100" title="Password must be at least 6 characters long">
+
+    <label for="confirmPassword">Confirm Password:</label>
+    <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" maxlength="100">
+
+    <button type="submit">Register</button>
+</form>
