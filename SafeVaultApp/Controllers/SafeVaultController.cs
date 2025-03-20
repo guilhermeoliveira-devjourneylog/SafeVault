@@ -1,11 +1,12 @@
-using System.Diagnostics;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using SafeVaultApp.Models;
 using SafeVaultApp.Helpers;
 using System.Text.RegularExpressions;
+using BCrypt.Net;
 
 namespace SafeVaultApp.Controllers
 {
+    [Route("SafeVault")]
     public class SafeVaultController : Controller
     {
         private readonly DatabaseContext _context;
@@ -15,24 +16,44 @@ namespace SafeVaultApp.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        [Route("submit")]
-        public IActionResult Submit(string username, string email)
+        [HttpGet("Registration")]
+        public IActionResult Registration()
+        {
+            return View();
+        }
+
+        [HttpPost("submit")]
+        public IActionResult Submit(string username, string email, string password, string confirmPassword)
         {
             if (!IsValidUsername(username) || !ValidationHelpers.IsValidEmail(email))
             {
-                return BadRequest("Invalid input detected.");
+                ViewData["Message"] = "Invalid input detected.";
+                return View("Registration");
+            }
+
+            if (password != confirmPassword)
+            {
+                ViewData["Message"] = "Passwords do not match.";
+                return View("Registration");
             }
 
             var sanitizedUsername = XSSProtection.SanitizeInput(username);
             var sanitizedEmail = XSSProtection.SanitizeInput(email);
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
 
-            var user = new User { Username = sanitizedUsername, Email = sanitizedEmail };
+            var user = new User
+            {
+                Username = sanitizedUsername,
+                Email = sanitizedEmail,
+                PasswordHash = hashedPassword,
+                Role = "User"
+            };
 
             _context.Users.Add(user);
             _context.SaveChanges();
 
-            return Ok("User successfully registered.");
+            ViewData["Message"] = "User successfully registered.";
+            return View("Registration");
         }
 
         private bool IsValidUsername(string username)

@@ -1,6 +1,5 @@
-﻿using System;
-using System.Data.SqlClient;
-using SafeVaultApp.Helpers;
+﻿using SafeVaultApp.Models;
+using MySqlConnector;
 
 namespace SafeVaultApp.Services
 {
@@ -13,22 +12,58 @@ namespace SafeVaultApp.Services
             _connectionString = configuration.GetConnectionString("DefaultConnection");
         }
 
-        public bool LoginUser(string username, string password)
+        public void RegisterUser(string username, string email, string password, string role)
         {
-            string query = "SELECT COUNT(1) FROM Users WHERE Username = @Username AND Password = @Password";
+            string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password); 
 
-            using (var connection = new SqlConnection(_connectionString))
+            using (var connection = new MySqlConnection(_connectionString)) 
             {
-                using (var command = new SqlCommand(query, connection))
+                string query = "INSERT INTO Users (Username, Email, PasswordHash, Role) VALUES (@Username, @Email, @PasswordHash, @Role)";
+
+                using (var command = new MySqlCommand(query, connection)) 
                 {
                     command.Parameters.AddWithValue("@Username", username);
-                    command.Parameters.AddWithValue("@Password", password); // ⚠️ Use bcrypt for password hashing!
+                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@PasswordHash", hashedPassword);
+                    command.Parameters.AddWithValue("@Role", role);
 
                     connection.Open();
-                    int count = (int)command.ExecuteScalar();
-                    return count > 0;
+                    command.ExecuteNonQuery();
                 }
             }
+        }
+
+        public User? ValidateUser(string username, string password)
+        {
+            using (var connection = new MySqlConnection(_connectionString)) 
+            {
+                string query = "SELECT UserID, Username, Email, PasswordHash, Role FROM Users WHERE Username = @Username";
+
+                using (var command = new MySqlCommand(query, connection)) 
+                {
+                    command.Parameters.AddWithValue("@Username", username);
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            string storedHash = reader["PasswordHash"].ToString();
+                            if (BCrypt.Net.BCrypt.Verify(password, storedHash))
+                            {
+                                return new User
+                                {
+                                    UserID = Convert.ToInt32(reader["UserID"]),
+                                    Username = reader["Username"].ToString(),
+                                    Email = reader["Email"].ToString(),
+                                    Role = reader["Role"].ToString() 
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            return null;
         }
     }
 }
