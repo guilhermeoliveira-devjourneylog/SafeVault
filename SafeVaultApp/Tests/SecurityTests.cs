@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using SafeVaultApp.Helpers;
-using System.Text.RegularExpressions;
 
 namespace SafeVaultApp.Tests
 {
@@ -11,7 +10,7 @@ namespace SafeVaultApp.Tests
         public void TestForSQLInjection()
         {
             string maliciousInput = "'; DROP TABLE Users; --";
-            bool isValid = IsValidInput(maliciousInput);
+            bool isValid = ValidationHelpers.IsValidInput(maliciousInput);
             Assert.That(isValid, Is.False, "SQL Injection should be blocked.");
         }
 
@@ -19,21 +18,24 @@ namespace SafeVaultApp.Tests
         public void TestForXSS()
         {
             string maliciousInput = "<script>alert('Hacked');</script>";
-            bool isValid = IsValidInput(maliciousInput);
-            Assert.That(isValid, Is.False, "XSS attack should be blocked.");
+            string sanitizedInput = XSSProtection.SanitizeInput(maliciousInput);
+            Assert.That(sanitizedInput, Does.Not.Contain("<script>"), "XSS attack should be neutralized.");
         }
 
-        private bool IsValidInput(string input)
+        [Test]
+        public void TestValidUsername()
         {
-            return !string.IsNullOrWhiteSpace(input) && Regex.IsMatch(input, "^[a-zA-Z0-9]+$");
+            string validInput = "User123";
+            bool isValid = ValidationHelpers.IsValidInput(validInput);
+            Assert.That(isValid, Is.True, "Valid username should pass.");
         }
 
-        public void TestXssInput()
+        [Test]
+        public void TestValidSanitizedOutput()
         {
             string maliciousInput = "<script>alert('XSS');</script>";
-            bool isValid = XSSProtection.IsValidXSSInput(maliciousInput);
-            Console.WriteLine(isValid ? "XSS Test Failed" : "XSS Test Passed");
+            string sanitizedInput = XSSProtection.SanitizeInput(maliciousInput);
+            Assert.That(sanitizedInput, Does.Not.Contain("<script>"), "Sanitization should remove script tags.");
         }
-
     }
 }

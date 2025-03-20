@@ -1,16 +1,13 @@
 ﻿using System;
+using System.Web;
 
 namespace SafeVaultApp.Helpers
 {
     public static class XSSProtection
     {
-        public static bool IsValidXSSInput(string input)
+        public static string SanitizeInput(string input)
         {
-            if (string.IsNullOrEmpty(input))
-                return true;
-
-            string lowerInput = input.ToLower();
-            return !(lowerInput.Contains("<script") || lowerInput.Contains("<iframe"));
+            return HttpUtility.HtmlEncode(input); 
         }
     }
 }
