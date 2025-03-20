@@ -1,9 +1,6 @@
 ﻿using NUnit.Framework;
 using SafeVaultApp.Helpers;
 using SafeVaultApp.Services;
-using Moq;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
 
 namespace SafeVaultApp.Tests
 {

@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using SafeVaultApp.Models;
-using Pomelo.EntityFrameworkCore.MySql;
 using SafeVaultApp.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 

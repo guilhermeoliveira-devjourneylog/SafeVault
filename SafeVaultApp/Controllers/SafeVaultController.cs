@@ -2,7 +2,6 @@
 using SafeVaultApp.Models;
 using SafeVaultApp.Helpers;
 using System.Text.RegularExpressions;
-using BCrypt.Net;
 
 namespace SafeVaultApp.Controllers
 {
