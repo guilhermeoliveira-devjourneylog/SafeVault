@@ -37,6 +37,12 @@ namespace SafeVaultApp.Controllers
                 return View("Registration");
             }
 
+            if (_context.Users.Any(u => u.Email == email))
+            {
+                ViewData["Message"] = "Email is already registered.";
+                return View("Registration");
+            }
+
             var sanitizedUsername = XSSProtection.SanitizeInput(username);
             var sanitizedEmail = XSSProtection.SanitizeInput(email);
             string hashedPassword = BCrypt.Net.BCrypt.HashPassword(password);
